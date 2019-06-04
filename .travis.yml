@@ -1,0 +1,23 @@
+dist: trusty
+sudo: required
+language: python
+python: "2.7"
+
+services:
+  - docker
+
+before_install:
+  - docker login -u $DOCKER_USER -p $DOCKER_PASS quay.io
+
+install:
+  #- pip install ansible
+  #- ansible-galaxy install -r apb/requirements-travis.yml
+  #- ansible-playbook apb/playbooks/provision.yml --syntax-check
+
+script:
+  - cd apb && docker build -t ddoyle/rhpam-dmn-pmml-demo-apb:$TRAVIS_COMMIT .
+
+after_success:
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker tag ddoyle/rhpam-dmn-pmml-demo-apb:$TRAVIS_COMMIT quay.io/ddoyle/rhpam-dmn-pmml-demo-apb:$TAG
+  - docker push quay.io/ddoyle/rhpam-dmn-pmml-demo-apb:$TAG
