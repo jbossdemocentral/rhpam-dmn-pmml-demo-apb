@@ -278,6 +278,45 @@
     shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/templates/entando-demo.yml -n openshift"
     when: entando_demo_template_exists_result is failed
 
+#- name: Create Secrets Business Central
+#  shell: oc process -f {{pam_secrets_template_yml}} -p SECRET_NAME=businesscentral-app-secret | oc create -f - -n {{ocp_project}}
+
+#- name: Create Secrets KIE-server
+#  shell: oc process -f {{pam_secrets_template_yml}} -p SECRET_NAME=kieserver-app-secret | oc create -f - -n {{ocp_project}}
+
+#- name: Create Service Account Business Central
+#  shell: oc create serviceaccount businesscentral-service-account -n {{ocp_project}}
+
+#- name: Create Service Account KIE Server
+#  shell: oc create serviceaccount kieserver-service-account -n {{ocp_project}}
+
+#- name: Link secrets and service account Business Central
+#  shell: oc secrets link --for=mount businesscentral-service-account businesscentral-app-secret -n {{ocp_project}}
+
+#- name: Link secrets and service account KIE-server
+#  shell: oc secrets link --for=mount kieserver-service-account kieserver-app-secret -n {{ocp_project}}
+
+#- name: Create ConfigMap Business Central
+#  shell: oc create configmap rhpam-bc-setup-config-map --from-file=/tmp/{{guid}}/bc-clone-git-repository.sh,/tmp/{{guid}}/provision-properties-static.sh -n {{ocp_project}}
+
+#- name: Create PAM7 Authoring environment 2
+#  shell: |
+#         oc new-app --template=rhpam73-authoring \
+#           --name={{pam_app_name}} \
+#           -p APPLICATION_NAME={{pam_app_name}} \
+#           -p BUSINESS_CENTRAL_HTTPS_SECRET=businesscentral-app-secret \
+#           -p KIE_SERVER_HTTPS_SECRET=kieserver-app-secret \
+#           -p IMAGE_STREAM_NAMESPACE=openshift \
+#           -p KIE_ADMIN_USER={{kie_server_username}} \
+#           -p KIE_ADMIN_PWD={{kie_server_password}} \
+#           -p KIE_SERVER_USER=kieUser \
+#           -p KIE_SERVER_PWD="kieUser!23" \
+#           -p BUSINESS_CENTRAL_VOLUME_CAPACITY="1Gi" \
+#           -p BUSINESS_CENTRAL_MEMORY_LIMIT="2Gi" \
+#           -p KIE_SERVER_MEMORY_LIMIT="2Gi" \
+#           -p DB_VOLUME_CAPACITY="4Gi" \
+#           -e JAVA_OPTS_APPEND="-Dorg.jbpm.document.storage=/opt/eap/standalone/data/documents"
+
 
 
 # Create database for reporting module
