@@ -1,0 +1,50 @@
+kind: ImageStreamList
+apiVersion: v1
+metadata:
+  name: rhpam73-dmn-pmml-image-streams
+  annotations:
+    description: ImageStream definitions for Red Hat Process Automation Manager 7.3 with PMML support
+    openshift.io/provider-display-name: Red Hat, Inc.
+items:
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam73-businesscentral-openshift-dmn-pmml
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager Business Central 7.3 with DMN and PMML
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.3 - Business Central with DMN and PMML image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.3
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: quay.io/ddoyle/rhpam73-businesscentral-openshift-dmn-pmml:1.0
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: rhpam73-kieserver-openshift-dmn-pmml
+    annotations:
+      openshift.io/display-name: Red Hat Process Automation Manager KIE-Server 7.3 with DMN and PMML
+      openshift.io/provider-display-name: Red Hat, Inc.
+  spec:
+    tags:
+    - name: '1.0'
+      annotations:
+        description: Red Hat Process Automation Manager 7.3 - KIE-Server with DMN and PMML image.
+        iconClass: icon-jboss
+        tags: rhpam
+        supports: rhpam:7.3
+        version: '1.0'
+      referencePolicy:
+        type: Local
+      from:
+        kind: DockerImage
+        name: quay.io/ddoyle/rhpam73-kieserver-openshift-dmn-pmml:1.0
