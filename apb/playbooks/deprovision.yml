@@ -30,12 +30,29 @@
       openshift_token is none or
       openshift_token|trim() == ""
 
-  - name: Delete infrastructyre services from {{ namespace }}
+  - name: Delete infrastructure services from {{ namespace }}
     command: "oc delete all,cm,secret,pvc,sa -l app={{ item }} -n {{ namespace }}"
     ignore_errors: true
     with_items:
       - postgresql-ephemeral
       - rhpam73-authoring
+
+  - name: Delete BC service account
+    command: oc delete sa/businesscentral-service-account -n {{namespace}}
+    ignore_errors: true
+
+  - name: Delete KIE-Server service account
+    command: oc delete sa/kieserver-service-account -n {{ namespace }}
+    ignore_errors: true
+
+  - name: Delete BC secrets
+    command: oc delete secret/businesscentral-app-secrets
+    ignore_errors: true
+
+  - name: Delete KIE-Server secrets
+    command: oc delete secret/kieserver-app-secrets
+    ignore_errors: true
+
 
   #- name: Delete user projects.
   #  command: "oc delete project rhpam-user{{item}}"

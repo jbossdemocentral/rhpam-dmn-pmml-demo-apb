@@ -346,11 +346,11 @@
 #    with_sequence: start=1 end={{user_count}}
 
 
-  - name: Patch Business Central DC
-    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
+#  - name: Patch Business Central DC
+#    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
 
-  - name: Patch Business Central DC
-    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
+#  - name: Patch Business Central DC
+#    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
 
 
   - include_role:
