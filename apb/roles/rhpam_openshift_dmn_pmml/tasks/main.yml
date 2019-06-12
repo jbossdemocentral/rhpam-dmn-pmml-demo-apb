@@ -12,19 +12,19 @@
 
 - name: "Configure Business Central ImageStream"
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-businesscentral-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
-  when: is_result is failed
+  ignore_errors: true
 
 - name: "Configure Business Central ImageStream Namespace"
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
-  when: is_result is failed
+  ignore_errors: true
 
 - name: "Configure KIE-Server ImageStream"
   shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-kieserver-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
-  when: is_result is failed
+  ignore_errors: true
 
 - name: "Configure KIE-Server ImageStream Namespace"
   shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
-  when: is_result is failed
+  ignore_errors: true
 
 
 #- name: "Configure Business Central environment variables."
