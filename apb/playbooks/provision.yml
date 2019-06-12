@@ -378,7 +378,7 @@
 
   - name: "Create Entando Customer Application"
     shell: |
-           oc new-app --template={{ocp_project}}/entando-demo \
+           oc new-app --template=openshift/entando-demo \
              -p APPLICATION_NAME="entando-fsi-ccd-customer" \
              -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
              -p KIE_SERVER_USERNAME=pamAdmin \
@@ -391,7 +391,7 @@
 
   - name: "Create Entando Admin Application"
     shell: |
-           oc new-app --template={{ocp_project}}/entando-demo \
+           oc new-app --template=openshift/entando-demo \
              -p APPLICATION_NAME="entando-fsi-ccd-admin" \
              -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
              -p KIE_SERVER_USERNAME=pamAdmin \
