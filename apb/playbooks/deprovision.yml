@@ -46,11 +46,11 @@
     ignore_errors: true
 
   - name: Delete BC secrets
-    command: oc delete secret/businesscentral-app-secrets
+    command: oc delete secret/businesscentral-app-secret
     ignore_errors: true
 
   - name: Delete KIE-Server secrets
-    command: oc delete secret/kieserver-app-secrets
+    command: oc delete secret/kieserver-app-secret
     ignore_errors: true
 
 
