@@ -357,6 +357,52 @@
       name: rhpam_openshift_dmn_pmml
     vars:
       OCP_PROJECT: "{{ namespace }}"
+
+
+
+  - name: "Get KIE-Server Route"
+    shell: "oc get route rhpam7-kieserver | awk 'FNR > 1 {print $2}'"
+    register: oc_get_route_output
+
+  - name: "Set KIE Server Route fact"
+    set_fact:
+    kie_server_route: "{{ oc_get_route_output.stdout }}"
+
+  - name: "Get OCP Domain Suffix"
+    shell: "oc get route rhpam7-kieserver | awk 'FNR > 1 {print $2}'| cut -d\".\" -f2-"
+    register: oc_get_domain_suffix_output
+
+  - name: "OCP Domain Suffix fact"
+    set_fact:
+      ocp_domain_suffix: "{{ oc_get_domain_suffix_output.stdout }}"
+
+  - name: "Create Entando Customer Application"
+    shell: |
+           oc new-app --template={{ocp_project}}/entando-demo \
+             -p APPLICATION_NAME="entando-fsi-ccd-customer" \
+             -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
+             -p KIE_SERVER_USERNAME=pamAdmin \
+             -p KIE_SERVER_PASSWORD=redhatpam1! \
+             -p IMAGE_STREAM_NAMESPACE=openshift \
+             -p IMAGE_STREAM="fsi-cc-dispute-customer" \
+             -p ENTANDO_APP_BUILDER_HOSTNAME_HTTP="appbuilder-customer.{{ocp_domain_suffix}}" \
+             -p ENTANDO_RUNTIME_HOSTNAME_HTTP="entando-core.{{ocp_domain_suffix}}" \
+             -p ENTANDO_WEB_CONTEXT="fsi-credit-card-dispute-customer"
+
+  - name: "Create Entando Admin Application"
+    shell: |
+           oc new-app --template={{ocp_project}}/entando-demo \
+             -p APPLICATION_NAME="entando-fsi-ccd-admin" \
+             -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
+             -p KIE_SERVER_USERNAME=pamAdmin \
+             -p KIE_SERVER_PASSWORD=redhatpam1! \
+             -p IMAGE_STREAM_NAMESPACE=openshift \
+             -p IMAGE_STREAM="fsi-cc-dispute-admin" \
+             -p ENTANDO_APP_BUILDER_HOSTNAME_HTTP="appbuilder-admin.{{ocp_domain_suffix}}" \
+             -p ENTANDO_RUNTIME_HOSTNAME_HTTP="entando-core.{{ocp_domain_suffix}}" \
+             -p ENTANDO_WEB_CONTEXT="fsi-credit-card-dispute-backoffice"
+
+
 #    with_sequence: start=1 end={{user_count}}
 
 #  - include_tasks: ./rhpam_decision-test-app.yml
