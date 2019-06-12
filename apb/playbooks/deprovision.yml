@@ -46,17 +46,24 @@
     ignore_errors: true
 
   - name: Delete BC secrets
-    command: oc delete secret/businesscentral-app-secret
+    command: oc delete secret/businesscentral-app-secret -n {{ namespace }}
     ignore_errors: true
 
   - name: Delete KIE-Server secrets
-    command: oc delete secret/kieserver-app-secret
+    command: oc delete secret/kieserver-app-secret -n {{ namespace }}
     ignore_errors: true
 
   - name: Delete BC RoleBinding
-    command: oc delete rolebinding/rhpam7-rhpamsvc-edit
+    command: oc delete rolebinding/rhpam7-rhpamsvc-edit -n {{ namespace }}
     ignore_errors: true
 
+  - name: Delete BC Image Stream
+    command: oc delete is/rhpam73-businesscentral-openshift-dmn-pmml -n {{ namespace }}
+    ignore_errors: true
+
+  - name: Delete KIE-Server Image Stream
+    command: oc delete is/rhpam73-kieserver-openshift-dmn-pmml -n {{ namespace }}
+    ignore_errors: true
 
   #- name: Delete user projects.
   #  command: "oc delete project rhpam-user{{item}}"
