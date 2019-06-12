@@ -53,6 +53,10 @@
     command: oc delete secret/kieserver-app-secret
     ignore_errors: true
 
+  - name: Delete BC RoleBinding
+    command: oc delete rolebinding/rhpam7-rhpamsvc-edit
+    ignore_errors: true
+
 
   #- name: Delete user projects.
   #  command: "oc delete project rhpam-user{{item}}"
