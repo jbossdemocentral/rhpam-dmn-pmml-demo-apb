@@ -12,7 +12,7 @@
 
 # Create the prometheus instance
 - name: Create the Promotheus instance
-  shell: oc process -f https://raw.githubusercontent.com/openshift/origin/master/examples/prometheus/prometheus-standalone.yaml | oc apply -f -n {{ OCP_PROJECT }} -
+  shell: oc process -f https://raw.githubusercontent.com/openshift/origin/master/examples/prometheus/prometheus-standalone.yaml | oc apply -f - -n {{ OCP_PROJECT }} 
 
 # Grant the PROM service account access to review Bearer tokens.
 # This is needed so we can use bearer token authentication between Grafana and Prometheus.
