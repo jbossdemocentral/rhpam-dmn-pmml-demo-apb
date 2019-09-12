@@ -31,7 +31,7 @@
 
 # Patch the OAuth proxy to allow Bearer token authentication
 - name: Patch OAuth proxy
-  shell: oc patch statefulset/prom --type='json' -p="[{'op': 'add', 'path': '/spec/template/spec/containers/0/args/-', 'value': '-openshift-delegate-urls={\"/\":{\"resource\":\"pods\",\"namespace\":\"dmn-pmml-demo\",\"name\":\"prom\",\"verb\":\"get\"}}'}]" -n {{OCP_PROJECT}}
+  shell: oc patch statefulset/prom --type='json' -p=[{'op': 'add', 'path': '/spec/template/spec/containers/0/args/-', 'value': '-openshift-delegate-urls={\"/\":{\"resource\":\"pods\",\"namespace\":\"dmn-pmml-demo\",\"name\":\"prom\",\"verb\":\"get\"}}'}] -n {{OCP_PROJECT}}
 
 ########################################################################
 # Deploy Grafana
