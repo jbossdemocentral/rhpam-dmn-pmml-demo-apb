@@ -339,6 +339,9 @@
 #      OCP_PROJECT: 'rhpam-user{{item}}'
 #    with_sequence: start=1 end={{user_count}}
 
+
+#---------------------- Deploy RHPAM ----------------------
+
   - include_role:
       name: ansible_openshift_rhpam
     vars:
@@ -346,12 +349,7 @@
 #    with_sequence: start=1 end={{user_count}}
 
 
-#  - name: Patch Business Central DC
-#    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
-
-#  - name: Patch Business Central DC
-#    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
-
+#---------------------- Patch Deployment Configs to use DMN-PMML versions of BC and KIE-Server ----------------------
 
   - include_role:
       name: rhpam_openshift_dmn_pmml
@@ -359,6 +357,13 @@
       OCP_PROJECT: "{{ namespace }}"
 
 
+#---------------------- Configure KIE-Server Prometheus plugin ----------------------
+
+  - name: "Configure KIE-Server Prometheus plugin environment variables."
+    shell: "oc set env dc/rhpam7-kieserver JAVA_OPTS_APPEND=\"-Dorg.kie.prometheus.server.ext.disabled=false -Dorg.kie.prometheus.server.ext.metrics=org.kie.server.services.prometheus.PrometheusMetricsDMNListener\" -n {{ namespace }}"
+
+
+#---------------------- Deploy Entando ----------------------
 
   - name: "Get KIE-Server Route"
     shell: "oc get route rhpam7-kieserver | awk 'FNR > 1 {print $2}'"
@@ -401,6 +406,21 @@
              -p ENTANDO_APP_BUILDER_HOSTNAME_HTTP="appbuilder-admin.{{ocp_domain_suffix}}" \
              -p ENTANDO_RUNTIME_HOSTNAME_HTTP="entando-core.{{ocp_domain_suffix}}" \
              -p ENTANDO_WEB_CONTEXT="fsi-credit-card-dispute-backoffice"
+
+
+#---------------------- Deploy Prometheus ----------------------
+
+  - include_role:
+      name: prometheus
+    vars:
+      OCP_PROJECT: "{{ namespace }}"
+
+#---------------------- Deploy Grafana ----------------------
+
+  - include_role:
+      name: grafana
+    vars:
+      OCP_PROJECT: "{{ namespace }}"
 
 
 #    with_sequence: start=1 end={{user_count}}

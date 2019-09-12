@@ -1,0 +1,105 @@
+---
+
+# Create the prom secret
+# Patch the prometheus.yml file to point to the demo's KIE-Server
+
+- name: Create the Prom secret
+  shell: oc create secret generic prom --from-file={{ role_path }}/files/prometheus.yml -n {{ OCP_PROJECT }}
+
+# Create the prom-alerts secret
+- name: Create the AlertManager secret
+  shell: oc create secret generic prom-alerts --from-file={{ role_path }}/files/alertmanager.yml -n {{ OCP_PROJECT }}
+
+# Create the prometheus instance
+- name: Create the Promotheus instance
+  shell: oc process -f https://raw.githubusercontent.com/openshift/origin/master/examples/prometheus/prometheus-standalone.yaml | oc apply -f -n {{ OCP_PROJECT }} -
+
+# Grant the PROM service account access to review Bearer tokens.
+# This is needed so we can use bearer token authentication between Grafana and Prometheus.
+# See also: https://access.redhat.com/solutions/3430731
+# See also: https://github.com/openshift/oauth-proxy/issues/70
+
+- name: "Set Prom User"
+  set_fact:
+    prom_user: "prom"
+
+- name: Add cluster role
+  shell: oc adm policy add-cluster-role-to-user system:auth-delegator -z {{ prom_user }} -n {{ OCP_PROJECT }}
+
+- name: Add cluster
+  shell: oc adm policy add-role-to-user view -z {{ prom_user }} -n {{ OCP_PROJECT }}
+
+# Patch the OAuth proxy to allow Bearer token authentication
+- name: Patch OAuth proxy
+  shell: oc patch statefulset/prom --type='json' -p="[{'op': 'add', 'path': '/spec/template/spec/containers/0/args/-', 'value': '-openshift-delegate-urls={\"/\":{\"resource\":\"pods\",\"namespace\":\"\$(NAMESPACE)\",\"name\":\"prom\",\"verb\":\"get\"}}'}] -n {{ OCP_PROJECT }}"
+
+########################################################################
+# Deploy Grafana
+########################################################################"
+
+
+########################################################################
+# Configure Grafana Datasource
+########################################################################"
+
+#echo_header "Creating Prometheus datasource in Grafana"
+
+## Wait for Grafana to start before configuring the datasource
+#STARTUP_WAIT=60
+
+#SA_READER=prom
+#PROTOCOL=http
+
+#GRAFANA_HOST="${PROTOCOL}://$( oc get route grafana-ocp -o jsonpath='{.spec.host}' )"
+
+##First check if the Grafana REST API is available. We'll wait for 60 seconds
+#echo "Waiting for Grafana REST API to become available at URL: ${GRAFANA_HOST}/api/datasources "
+#count=0
+#launched=false
+#until [ $count -gt $STARTUP_WAIT ]
+#do
+#  curl --output /dev/null --silent --head --fail ${GRAFANA_HOST}/api/datasources
+#  #curl --fail  ${GRAFANA_HOST}/api/datasources
+#  if [ $? -eq 0 ] ; then
+#    echo "Grafana REST API started."
+#    launched=true
+#    break
+#  fi
+#  printf '.'
+#  sleep 5
+#  let count=$count+5;
+#done
+
+##Check that the platform has started, otherwise exit.
+#if [ $launched = "false" ]
+#then
+#  echo "Grafana did not start correctly. Exiting."
+#  exit 1
+#else
+#  echo "Grafana started."
+#fi
+
+#echo "Create Prometheus Datasource."
+
+#PAYLOAD="$( mktemp )"
+#cat <<EOF >"${PAYLOAD}"
+# {
+#"name": "prometheus",
+#"type": "prometheus",
+#"typeLogoUrl": "",
+#"access": "proxy",
+#"url": "https://$( oc get route prom -n "${NAMESPACE}" -o jsonpath='{.spec.host}' )",
+#"basicAuth": false,
+#"withCredentials": false,
+#"jsonData": {
+#    "tlsSkipVerify":true
+#},
+#"secureJsonData": {
+#    "httpHeaderName1":"Authorization",
+#    "httpHeaderValue1":"Bearer $( oc sa get-token "${SA_READER}" -n "${NAMESPACE}" )"
+#}
+#}
+#EOF
+
+# setup grafana data source
+#curl --insecure -H "Content-Type: application/json" -u admin:admin "${GRAFANA_HOST}/api/datasources" -X POST -d "@${PAYLOAD}"

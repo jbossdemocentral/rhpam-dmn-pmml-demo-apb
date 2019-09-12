@@ -36,6 +36,7 @@
     with_items:
       - postgresql-ephemeral
       - rhpam73-authoring
+      - entando-demo
 
   - name: Delete BC service account
     command: oc delete sa/businesscentral-service-account -n {{namespace}}

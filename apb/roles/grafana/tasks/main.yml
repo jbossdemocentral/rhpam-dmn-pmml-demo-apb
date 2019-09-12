@@ -1,0 +1,74 @@
+---
+
+# TODO: Figure out how to deploy "grafana/grafana via OCP CLI."
+#- name: Deploy Grafana
+#  shell: oc new-app -f https://raw.githubusercontent.com/mrsiano/openshift-grafana/master/grafana-ocp.yaml -p NAMESPACE=$NAMESPACE -p IMAGE_GF=mrsiano/openshift-grafana:5.2.0 -n {{ OCP_PROJECT }}
+
+- name: Deploy Grafana
+  shell: oc new-app grafana/grafana -n {{ OCP_PROJECT }}
+
+# Expose Grafana via router
+- name: Create route to Grafana
+  shell: oc expose svc/grafana -n {{ OCP_PROJECT }}
+
+# Get Service Account token
+- name: Get service account token
+  shell: "oc sa get-token prom -n {{ OCP_PROJECT }}"
+  register: oc_get_sa_token_output
+
+- name: Set service account token fact
+  set_fact:
+    prom_sa_token: "{{ oc_get_sa_token_output.stdout }}"
+
+# Test whether the Grafana RESTful API is available.
+
+# Call the Grafana RESTful API to configure Prometheus datasource.
+# TODO: for the URL in the request, we can probably use the internal URL .... unless .... that doesn't provide OAuth Bearer Token authentication ...
+
+- name: "Get Prometheus Route"
+  shell: "oc get route prom -n {{ OCP_PROJECT }} | awk 'FNR > 1 {print $2}'"
+  register: oc_get_route_prometheus_output
+
+- name: "Set Prometheus Route fact"
+  set_fact:
+    prometheus_route: "{{ oc_get_route_prometheus_output.stdout }}"
+
+- name: "Get Grafana Route"
+  shell: "oc get route grafana -n {{ OCP_PROJECT }} | awk 'FNR > 1 {print $2}'"
+  register: oc_get_route_grafana_output
+
+- name: "Set Grafana Route fact"
+  set_fact:
+    prometheus_route: "{{ oc_get_route_grafana_output.stdout }}"
+
+- name: Create a JIRA issue
+  uri:
+    url: https://your.jira.example.com/rest/api/2/issue/
+    user: your_username
+    password: your_pass
+    method: POST
+    body: "{{ lookup('file','issue.json') }}"
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+
+#---------------------- Configure Prometheus datasource ----------------------
+
+# {
+# "name": "prometheus",
+# "type": "prometheus",
+# "typeLogoUrl": "",
+# "access": "proxy",
+# "url": "https://prom-dmn-pmml-demo.apps.rotterdam-f653.openshiftworkshop.com",
+# "basicAuth": false,
+# "withCredentials": false,
+# "jsonData": {
+#    "tlsSkipVerify":true
+# },
+# "secureJsonData": {
+#    "httpHeaderName1":"Authorization",
+#     "httpHeaderValue1":"Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkbW4tcG1tbC1kZW1vIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InByb20tdG9rZW4tMjd4cHciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoicHJvbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjlhOGUxN2Q3LThkMjgtMTFlOS04ZDFjLTE2NWU0YzJlNmFjOCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkbW4tcG1tbC1kZW1vOnByb20ifQ.PMTJifukgY1LmN6ccb0vLnzjgHxB_a7nT_JgDK3M9GbKxjuKXLd_EUphcyvqKlTbeg8c3oOvpNa5oFr5bHBnczEyloSppidJf6-veX0HF0J0aFucsYD_M6jYSG_TunaPuLcKYmteuPl28zpsam6zJEjGqX5wCNvu4vf8tEfa9tDITXfD96R0AlZ2-y8d2lfkfqyg25A4nUQQIs9UjzpD4Ed5hAcFp2uTCNR8DXj_JU6Vc_P2uD8NVMMSFIhGu_r0X4tl4yOFTsH6Mdu3r89nPV6mkv46ILxgyG_s4YSdv6DbJh474LEOz9wKWwYRU96dhLXjM6WMFJGzqpFDDR5XuA"
+# }
+# }
+
+#---------------------- Import Grafana dashboard ----------------------
