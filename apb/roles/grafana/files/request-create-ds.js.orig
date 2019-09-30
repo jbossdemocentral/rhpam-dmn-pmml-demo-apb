@@ -1,0 +1,17 @@
+{
+   "name":"prometheus",
+   "type":"prometheus",
+   "typeLogoUrl":"",
+   "access":"proxy",
+   "url":"https://{{ prometheus_route }}",
+   "basicAuth":false,
+   "withCredentials":false,
+   "jsonData":{
+      "tlsSkipVerify":true,
+      "httpHeaderName1":"Authorization"
+   },
+   "secureJsonData":{
+
+      "httpHeaderValue1":"Bearer {{ prom_sa_token }}"
+   }
+}

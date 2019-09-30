@@ -1,0 +1,4 @@
+---
+
+deploy_status_retries: 30
+deploy_status_delay: 20
