@@ -346,6 +346,8 @@
       name: ansible_openshift_rhpam
     vars:
       OCP_PROJECT: "{{ namespace }}"
+      RHPAM_VERSION_TAG: 7.5.x
+      #RHPAM_VERSION_TAG: 7.3.1.GA
 #    with_sequence: start=1 end={{user_count}}
 
 
