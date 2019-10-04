@@ -1,31 +1,64 @@
 ---
 
-- name: Check if ImageStream exists
-  shell: "oc get is/rhpam73-businesscentral-openshift-dmn-pmml -n {{OCP_PROJECT}}"
-  register: is_result
-  ignore_errors: true
-  changed_when: false
+# TODO: Replace the ImageStream approach with Binary Builds from a Dockerfile that patch the BC and KIE-Server images with PMML support and Prometheus Metrics Provider.
 
-- name: Create ImageStream
-  shell: "oc create -f {{ role_path }}/files/rhpam73-openshift-dmn-pmml.yml -n {{ OCP_PROJECT }}"
-  when: is_result is failed
+- name: Debug message
+  debug:
+    msg: "Adding jPMML support to RHPAM 7.5."
+
+## Create a new Docker binary build
+#oc new-build --strategy docker --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n dmn-pmml-demo
+#oc new-build --strategy docker --binary --name rhpam75-kieserver-openshift-dmn-pmml -n dmn-pmml-demo
+
+## Start build from local dir.
+#oc start-build rhpam75-businesscentral-openshift-dmn-pmml --from-dir . -n dmn-pmml-demo
+#oc start-build rhpam75-kieserver-openshift-dmn-pmml --from-dir . -n dmn-pmml-demo
+
+- name: Create Business Central DMN PMML build
+  shell: oc new-build --strategy docker --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n {{ OCP_PROJECT }}
+
+- name: Create KIE-Server DMN PMML build
+  shell: oc new-build --strategy docker --binary --name rhpam75-kieserver-openshift-dmn-pmml -n {{ OCP_PROJECT }}
+
+#- name: Check if ImageStream exists
+#  shell: "oc get is/rhpam73-businesscentral-openshift-dmn-pmml -n {{OCP_PROJECT}}"
+#  register: is_result
+#  ignore_errors: true
+#  changed_when: false
+
+#- name: Create ImageStream
+#  shell: "oc create -f {{ role_path }}/files/rhpam73-openshift-dmn-pmml.yml -n {{ OCP_PROJECT }}"
+#  when: is_result is failed
+
+#- name: "Configure Business Central ImageStream"
+#  shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-businesscentral-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
+#  ignore_errors: true
 
 - name: "Configure Business Central ImageStream"
-  shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-businesscentral-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
+  shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-businesscentral-openshift-dmn-pmml:latest\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
 - name: "Configure Business Central ImageStream Namespace"
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
+#- name: "Configure KIE-Server ImageStream"
+#  shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-kieserver-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
+#  ignore_errors: true
+
 - name: "Configure KIE-Server ImageStream"
-  shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-kieserver-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
+  shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-kieserver-openshift-dmn-pmml:latest\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
 - name: "Configure KIE-Server ImageStream Namespace"
   shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
+- name: Start Business Central DMN PMML build
+  shell: oc start-build rhpam75-businesscentral-openshift-dmn-pmml --from-dir {{ role_path }}/files/bc_docker_build -n {{ OCP_PROJECT }}
+
+- name: Start KIE-Server DMN PMML Builds
+  shell: oc start-build rhpam75-kieserver-openshift-dmn-pmml --from-dir {{ role_path }}/files/ks_docker_build -n {{ OCP_PROJECT }}
 
 #- name: "Configure Business Central environment variables."
 #  shell: "oc set env dc/rhpam7-rhpamcentr JAVA_OPTS_APPEND=\"-Dorg.jbpm.casemgmt.showcase.url=/rhpam-case-mgmt-showcase -Dorg.kie.server.location=http://rhpam7-kieserver:8080/services/rest/server -Dorg.jbpm.wb.forms.renderer.ext=true\" -n {{ OCP_PROJECT }}"
