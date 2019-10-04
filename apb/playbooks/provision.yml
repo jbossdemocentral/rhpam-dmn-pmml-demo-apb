@@ -356,10 +356,10 @@
 
 # Disable temporarily until we have a proper patched container image defined for 7.5
 
-  #- include_role:
-  #    name: rhpam_openshift_dmn_pmml
-  #  vars:
-  #    OCP_PROJECT: "{{ namespace }}"
+  - include_role:
+      name: rhpam_openshift_dmn_pmml
+    vars:
+      OCP_PROJECT: "{{ namespace }}"
 
 
 #---------------------- Configure KIE-Server Prometheus plugin ----------------------
