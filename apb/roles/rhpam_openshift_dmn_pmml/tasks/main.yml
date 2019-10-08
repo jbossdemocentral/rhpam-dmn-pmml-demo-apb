@@ -6,33 +6,11 @@
   debug:
     msg: "Adding jPMML support to RHPAM 7.5."
 
-## Create a new Docker binary build
-#oc new-build --strategy docker --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n dmn-pmml-demo
-#oc new-build --strategy docker --binary --name rhpam75-kieserver-openshift-dmn-pmml -n dmn-pmml-demo
-
-## Start build from local dir.
-#oc start-build rhpam75-businesscentral-openshift-dmn-pmml --from-dir . -n dmn-pmml-demo
-#oc start-build rhpam75-kieserver-openshift-dmn-pmml --from-dir . -n dmn-pmml-demo
-
 - name: Create Business Central DMN PMML build
   shell: oc new-build --strategy docker --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n {{ OCP_PROJECT }}
 
 - name: Create KIE-Server DMN PMML build
   shell: oc new-build --strategy docker --binary --name rhpam75-kieserver-openshift-dmn-pmml -n {{ OCP_PROJECT }}
-
-#- name: Check if ImageStream exists
-#  shell: "oc get is/rhpam73-businesscentral-openshift-dmn-pmml -n {{OCP_PROJECT}}"
-#  register: is_result
-#  ignore_errors: true
-#  changed_when: false
-
-#- name: Create ImageStream
-#  shell: "oc create -f {{ role_path }}/files/rhpam73-openshift-dmn-pmml.yml -n {{ OCP_PROJECT }}"
-#  when: is_result is failed
-
-#- name: "Configure Business Central ImageStream"
-#  shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-businesscentral-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
-#  ignore_errors: true
 
 - name: "Configure Business Central ImageStream"
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam75-businesscentral-openshift-dmn-pmml:latest\"}]' -n {{ OCP_PROJECT }}"
@@ -42,10 +20,6 @@
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
-#- name: "Configure KIE-Server ImageStream"
-#  shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam73-kieserver-openshift-dmn-pmml:1.0\"}]' -n {{ OCP_PROJECT }}"
-#  ignore_errors: true
-
 - name: "Configure KIE-Server ImageStream"
   shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam75-kieserver-openshift-dmn-pmml:latest\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
@@ -54,12 +28,19 @@
   shell: "oc patch dc/rhpam7-kieserver --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/namespace\", \"value\": \"{{OCP_PROJECT}}\"}]' -n {{ OCP_PROJECT }}"
   ignore_errors: true
 
+#------------------------------------ Disable the OpenShift Startup Strategy and revert to the old Controller Strategy  ------------------------------------------
+
+- name: "Configure Business Central Environment Variables"
+  shell: "oc set env dc/rhpam7-rhpamcentr KIE_WORKBENCH_CONTROLLER_OPENSHIFT_ENABLED=false"
+
+# What about KIE_SERVER_CONTROLLER_TOKEN??
+- name: "Configure KIE-Server Environment Variables"
+  shell: "oc set env dc/rhpam7-kieserver KIE_SERVER_STARTUP_STRATEGY=ControllerBasedStartupStrategy KIE_SERVER_CONTROLLER_USER=controllerUser KIE_SERVER_CONTROLLER_PWD=test1234! KIE_SERVER_CONTROLLER_SERVICE=rhpam7-rhpamcentr KIE_SERVER_CONTROLLER_PROTOCOL=ws"
+
+#----------------------------------------------------------------------------------------------------------------------
+
 - name: Start Business Central DMN PMML build
   shell: oc start-build rhpam75-businesscentral-openshift-dmn-pmml --from-dir {{ role_path }}/files/bc_docker_build -n {{ OCP_PROJECT }}
 
 - name: Start KIE-Server DMN PMML Builds
   shell: oc start-build rhpam75-kieserver-openshift-dmn-pmml --from-dir {{ role_path }}/files/ks_docker_build -n {{ OCP_PROJECT }}
-
-#- name: "Configure Business Central environment variables."
-#  shell: "oc set env dc/rhpam7-rhpamcentr JAVA_OPTS_APPEND=\"-Dorg.jbpm.casemgmt.showcase.url=/rhpam-case-mgmt-showcase -Dorg.kie.server.location=http://rhpam7-kieserver:8080/services/rest/server -Dorg.jbpm.wb.forms.renderer.ext=true\" -n {{ OCP_PROJECT }}"
-#  when: is_result is failed
