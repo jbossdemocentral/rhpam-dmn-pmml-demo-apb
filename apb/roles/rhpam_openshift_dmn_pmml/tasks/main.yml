@@ -7,10 +7,10 @@
     msg: "Adding jPMML support to RHPAM 7.5."
 
 - name: Create Business Central DMN PMML build
-  shell: oc new-build --strategy docker --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n {{ OCP_PROJECT }}
+  shell: oc new-build --strategy docker --image-stream="openshift/rhpam75-businesscentral-openshift:1.0" --binary --name rhpam75-businesscentral-openshift-dmn-pmml -n {{ OCP_PROJECT }}
 
 - name: Create KIE-Server DMN PMML build
-  shell: oc new-build --strategy docker --binary --name rhpam75-kieserver-openshift-dmn-pmml -n {{ OCP_PROJECT }}
+  shell: oc new-build --strategy docker --image-stream="openshift/rhpam75-kieserver-openshift:1.0" --binary --name rhpam75-kieserver-openshift-dmn-pmml -n {{ OCP_PROJECT }}
 
 - name: "Configure Business Central ImageStream"
   shell: "oc patch dc/rhpam7-rhpamcentr --type='json' -p '[{\"op\": \"replace\", \"path\": \"/spec/triggers/0/imageChangeParams/from/name\", \"value\": \"rhpam75-businesscentral-openshift-dmn-pmml:latest\"}]' -n {{ OCP_PROJECT }}"
