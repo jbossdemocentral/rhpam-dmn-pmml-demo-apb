@@ -72,7 +72,7 @@
     ignore_errors: true
     tags: always
 
-    - name: disable namespace ownership for router
+  - name: disable namespace ownership for router
     shell: "oc set env dc/router --overwrite ROUTER_DISABLE_NAMESPACE_OWNERSHIP_CHECK=true -n default"
     when:
       - openshift_token is defined
