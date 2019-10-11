@@ -225,3 +225,26 @@
       name: grafana
     vars:
       OCP_PROJECT: "{{ namespace }}"
+
+#---------------------- Deploy DataLoader ----------------------
+
+  - name: Create DataLoader Build
+    shell: oc new-build fabric8/s2i-java~https://github.com/jbossdemocentral/gdemo-data-loader-quarkus --name=gdemo-data-loader
+
+  - name: Deploy DataLoader for DMN
+    shell: oc new-app gdemo-data-loader --allow-missing-imagestream-tags --name gdemo-data-loader-dmn -e KIE_SERVER_REST_ENDPOINT=http://rhpam7-kieserver:8080/services/rest/server  -e DMN_MODEL_NAME=creditDisputeSimpleInput
+
+  - name: Deploy DataLoader for PMML-1
+    shell: oc new-app gdemo-data-loader --allow-missing-imagestream-tags --name gdemo-data-loader-dmn-pmml1 -e KIE_SERVER_REST_ENDPOINT=http://rhpam7-kieserver:8080/services/rest/server  -e DMN_MODEL_NAME=creditDisputeSimpleInputPmml1
+
+  - name: Deploy DataLoader for PMML2
+    shell: oc new-app gdemo-data-loader --allow-missing-imagestream-tags --name gdemo-data-loader-dmn-pmml2 -e KIE_SERVER_REST_ENDPOINT=http://rhpam7-kieserver:8080/services/rest/server  -e DMN_MODEL_NAME=creditDisputeSimpleInputPmml2
+
+  - name: Set RepController for DMN DC
+    shell: oc scale --replicas=0 dc/gdemo-data-loader-dmn
+
+  - name: Set RepContoller for PMML1 DC
+    shell: oc scale --replicas=0 dc/gdemo-data-loader-dmn-pmml1
+
+  - name: Set RepController for PMML2 DC
+    shell: oc scale --replicas=0 dc/gdemo-data-loader-dmn-pmml2
