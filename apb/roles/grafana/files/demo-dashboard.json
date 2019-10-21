@@ -1,6 +1,4 @@
 {
-"dashboard":
-{
   "annotations": {
     "list": [
       {
@@ -17,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
+  "id": 1,
   "iteration": 1563524257177,
   "links": [],
   "panels": [
@@ -507,5 +505,4 @@
   "title": "Demo dashboard",
   "uid": "ilKaJt7Wk",
   "version": 6
-}
 }
