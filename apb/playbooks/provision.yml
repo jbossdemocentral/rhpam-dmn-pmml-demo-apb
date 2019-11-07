@@ -188,12 +188,12 @@
 
   - name: "Create Entando Customer Application"
     shell: |
-           oc new-app --template=openshift/entando-demo \
+           oc new-app --template={{ IMAGE_STREAM_NAMESPACE }}/entando-demo \
              -p APPLICATION_NAME="entando-fsi-ccd-customer" \
              -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
              -p KIE_SERVER_USERNAME=pamAdmin \
              -p KIE_SERVER_PASSWORD=redhatpam1! \
-             -p IMAGE_STREAM_NAMESPACE=openshift \
+             -p IMAGE_STREAM_NAMESPACE={{ IMAGE_STREAM_NAMESPACE }} \
              -p IMAGE_STREAM="fsi-cc-dispute-customer" \
              -p ENTANDO_APP_BUILDER_HOSTNAME_HTTP="appbuilder-customer.{{ocp_domain_suffix}}" \
              -p ENTANDO_RUNTIME_HOSTNAME_HTTP="entando-core.{{ocp_domain_suffix}}" \
@@ -201,12 +201,12 @@
 
   - name: "Create Entando Admin Application"
     shell: |
-           oc new-app --template=openshift/entando-demo \
+           oc new-app --template={{ IMAGE_STREAM_NAMESPACE }}/entando-demo \
              -p APPLICATION_NAME="entando-fsi-ccd-admin" \
              -p KIE_SERVER_BASE_URL="http://{{kie_server_route}}" \
              -p KIE_SERVER_USERNAME=pamAdmin \
              -p KIE_SERVER_PASSWORD=redhatpam1! \
-             -p IMAGE_STREAM_NAMESPACE=openshift \
+             -p IMAGE_STREAM_NAMESPACE={{ IMAGE_STREAM_NAMESPACE }} \
              -p IMAGE_STREAM="fsi-cc-dispute-admin" \
              -p ENTANDO_APP_BUILDER_HOSTNAME_HTTP="appbuilder-admin.{{ocp_domain_suffix}}" \
              -p ENTANDO_RUNTIME_HOSTNAME_HTTP="entando-core.{{ocp_domain_suffix}}" \
