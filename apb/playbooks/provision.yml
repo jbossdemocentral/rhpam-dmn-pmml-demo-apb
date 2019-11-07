@@ -82,61 +82,61 @@
 
   # install openjdk imagestream
   - name: get openjdk image stream
-    shell: "oc get is java -n openshift"
+    shell: "oc get is java -n {{ IMAGE_STREAM_NAMESPACE }}"
     register: java_imagestream_result
     ignore_errors: true
     tags: jdk
 
   - name: install java image stream
-    shell: "oc apply -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/openjdk/openjdk18-image-stream.json"
+    shell: "oc apply -n {{ IMAGE_STREAM_NAMESPACE }} -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/openjdk/openjdk18-image-stream.json"
     when: java_imagestream_result is failed
     tags: jdk
 
   # install RHPAM Image Streams
   - name: Check if PAM ImageStreams exists
-    shell: oc get is/rhpam73-businesscentral-openshift -n openshift
+    shell: oc get is/rhpam73-businesscentral-openshift -n {{ IMAGE_STREAM_NAMESPACE }}
     register: rhpam_is_exists_result
     ignore_errors: true
     tags: rhpam
 
   - name: Import the RHPAM ImageStreams into the cluster.
-    shell: "oc create -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.3.0.GA/rhpam73-image-streams.yaml -n openshift"
+    shell: "oc create -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.5.0.GA/rhpam75-image-streams.yaml -n {{ IMAGE_STREAM_NAMESPACE }}"
     when: rhpam_is_exists_result is failed
     ignore_errors: true
     tags: rhpam
 
   - name: Check if RHPAM Authoring Template exists
-    shell: oc get template/rhpam73-authoring -n openshift
+    shell: oc get template/rhpam73-authoring -n {{ IMAGE_STREAM_NAMESPACE}}
     register: rhpam_template_authoring_exists_result
     ignore_errors: true
     tags: rhpam
 
   - name: Import the RHPAM Authoring Template into the cluster.
-    shell: "oc create -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.3.0.GA/templates/rhpam73-authoring.yaml -n openshift"
+    shell: "oc create -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.3.0.GA/templates/rhpam73-authoring.yaml -n {{ IMAGE_STREAM_NAMESPACE }}"
     when: rhpam_template_authoring_exists_result is failed
     ignore_errors: true
     tags: rhpam
 
 # Only checking one of the ImageStreams that's in the Entando ImageStream file.
   - name: Check if Entando CC Dispute ImageStreams exists
-    shell: oc get is/fsi-cc-dispute-customer -n openshift
+    shell: oc get is/fsi-cc-dispute-customer -n {{ IMAGE_STREAM_NAMESPACE}}
     register: cc_disute_is_exists_result
     ignore_errors: true
     tags: rhpam
 
   - name: Import Entando OpenShift ImageStreams Entando EAP 7.1
-    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n openshift"
+    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/image-streams/entando-fsi-ccd-demo.json -n {{ IMAGE_STREAM_NAMESPACE }}"
     when: cc_disute_is_exists_result is failed
 
 
   - name: Check if Entando CC Dispute ImageStreams exists
-    shell: oc get template/entando-demo -n openshift
+    shell: oc get template/entando-demo -n {{ IMAGE_STREAM_NAMESPACE}}
     register: entando_demo_template_exists_result
     ignore_errors: true
     tags: rhpam
 
   - name: Import Entando demo template
-    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/templates/entando-demo.yml -n openshift"
+    shell: "oc create -f https://raw.githubusercontent.com/entando/entando-ops/credit-card-dispute/Openshift/templates/entando-demo.yml -n {{IMAGE_STREAM_NAMESPACE}}"
     when: entando_demo_template_exists_result is failed
 
 #---------------------- Deploy RHPAM ----------------------
@@ -145,6 +145,7 @@
       name: ansible_openshift_rhpam
     vars:
       OCP_PROJECT: "{{ namespace }}"
+      IMAGE_STREAM_NAMESPACE: "{{ IMAGE_STREAM_NAMESPACE }}"
       RHPAM_VERSION_TAG: 7.5.x
       RHPAM_VERSION_ID: 75
       #RHPAM_VERSION_TAG: 7.3.1.GA
