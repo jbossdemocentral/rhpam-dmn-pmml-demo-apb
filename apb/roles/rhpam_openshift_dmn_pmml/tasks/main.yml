@@ -7,7 +7,7 @@
     msg: "Adding jPMML support to RHPAM 7.5."
 
 - name: Create Business Central DMN PMML build
-  shell: oc new-build --strategy docker --image-stream="{{ IMAGE_STREAM_NAMESPACE }} /rhpam-businesscentral-rhel8:7.5.0" --binary --name rhpam-businesscentral-rhel8-dmn-pmml -n {{ OCP_PROJECT }}
+  shell: oc new-build --strategy docker --image-stream="{{ IMAGE_STREAM_NAMESPACE }}/rhpam-businesscentral-rhel8:7.5.0" --binary --name rhpam-businesscentral-rhel8-dmn-pmml -n {{ OCP_PROJECT }}
 
 - name: Create KIE-Server DMN PMML build
   shell: oc new-build --strategy docker --image-stream="{{ IMAGE_STREAM_NAMESPACE }}/rhpam-kieserver-rhel8:7.5.0" --binary --name rhpam-kieserver-rhel8-dmn-pmml -n {{ OCP_PROJECT }}
