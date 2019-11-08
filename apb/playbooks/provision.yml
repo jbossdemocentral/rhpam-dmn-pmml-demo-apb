@@ -170,7 +170,7 @@
 #---------------------- Deploy Entando ----------------------
 
   - name: "Get KIE-Server Route"
-    shell: "oc get route rhpam7-kieserver | awk 'FNR > 1 {print $2}'"
+    shell: "oc get route insecure-rhpam7-kieserver | awk 'FNR > 1 {print $2}'"
     register: oc_get_route_output
 
   - name: "Set KIE Server Route fact"
@@ -178,7 +178,7 @@
       kie_server_route: "{{ oc_get_route_output.stdout }}"
 
   - name: "Get OCP Domain Suffix"
-    shell: "oc get route rhpam7-kieserver | awk 'FNR > 1 {print $2}'| cut -d\".\" -f2-"
+    shell: "oc get route insecure-rhpam7-kieserver | awk 'FNR > 1 {print $2}'| cut -d\".\" -f2-"
     register: oc_get_domain_suffix_output
 
   - name: "OCP Domain Suffix fact"
