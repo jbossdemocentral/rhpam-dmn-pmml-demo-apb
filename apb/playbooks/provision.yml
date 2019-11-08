@@ -6,7 +6,6 @@
     openshift_user:
     openshift_password:
     openshift_token:
-    openshift_master_url:
     openshift_user_password:
     project_suffix: "-XX"
     github_account: RedHat-Middleware-Workshops
@@ -88,7 +87,7 @@
     tags: jdk
 
   - name: install java image stream
-    shell: "oc apply -n {{ IMAGE_STREAM_NAMESPACE }} -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/openjdk/openjdk18-image-stream.json"
+    shell: "oc apply -n {{ IMAGE_STREAM_NAMESPACE }} -f https://raw.githubusercontent.com/jboss-container-images/openjdk/develop/templates/image-streams.json"
     when: java_imagestream_result is failed
     tags: jdk
 
@@ -106,7 +105,7 @@
     tags: rhpam
 
   - name: Check if RHPAM Authoring Template exists
-    shell: oc get template/rhpam73-authoring -n {{ IMAGE_STREAM_NAMESPACE}}
+    shell: oc get template/rhpam75-authoring -n {{ IMAGE_STREAM_NAMESPACE}}
     register: rhpam_template_authoring_exists_result
     ignore_errors: true
     tags: rhpam
